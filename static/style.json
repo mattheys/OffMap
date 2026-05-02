@@ -1,0 +1,110 @@
+{
+  "version": 8,
+  "name": "offmap",
+  "sources": {
+    "offmap": {
+      "type": "vector",
+      "tiles": [
+        "/tiles/{z}/{x}/{y}.pbf"
+      ],
+      "minzoom": 0,
+      "maxzoom": 14
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#efe9d7"
+      }
+    },
+    {
+      "id": "landcover",
+      "type": "fill",
+      "source": "offmap",
+      "source-layer": "landcover",
+      "paint": {
+        "fill-color": "#dce6c6",
+        "fill-opacity": 0.55
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "offmap",
+      "source-layer": "water",
+      "paint": {
+        "fill-color": "#8ec7de"
+      }
+    },
+    {
+      "id": "park",
+      "type": "fill",
+      "source": "offmap",
+      "source-layer": "park",
+      "paint": {
+        "fill-color": "#bfd6a5",
+        "fill-opacity": 0.65
+      }
+    },
+    {
+      "id": "transport",
+      "type": "line",
+      "source": "offmap",
+      "source-layer": "transportation",
+      "paint": {
+        "line-color": "#9c8471",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          4,
+          0.2,
+          14,
+          2.8
+        ]
+      }
+    },
+    {
+      "id": "boundaries",
+      "type": "line",
+      "source": "offmap",
+      "source-layer": "boundary",
+      "paint": {
+        "line-color": "#7d6d64",
+        "line-width": 0.7,
+        "line-dasharray": [
+          2,
+          1
+        ]
+      }
+    },
+    {
+      "id": "building",
+      "type": "fill",
+      "source": "offmap",
+      "source-layer": "building",
+      "paint": {
+        "fill-color": "#ddcdb7",
+        "fill-opacity": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          12,
+          0,
+          14,
+          0.55
+        ]
+      }
+    }
+  ]
+}

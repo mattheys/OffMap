@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  offmap:
+    build: .
+    image: offmap:latest
+    ports:
+      - "8080:8080"
+    environment:
+      HIGH_DETAIL_REGION: California
+      LOW_MAX_ZOOM: 8
+      HIGH_MAX_ZOOM: 14
+      TILE_THREADS: 1
+      STARTUP_IMPORT: "true"
+      AUTO_UPDATE: "true"
+      UPDATE_CRON: "0 3 * * 0"
+    volumes:
+      - offmap-data:/data
+
+volumes:
+  offmap-data:

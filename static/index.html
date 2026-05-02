@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OffMap</title>
+    <link rel="stylesheet" href="/assets/maplibre-gl.css" />
+    <style>
+      :root {
+        --bg: #f3efe3;
+        --surface: #fffdf6;
+        --accent: #0d5f73;
+        --ink: #1d2a2f;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        font-family: "IBM Plex Sans", "Noto Sans", sans-serif;
+        color: var(--ink);
+        background: radial-gradient(circle at top left, #fff, var(--bg));
+      }
+      #map {
+        position: absolute;
+        inset: 0;
+      }
+      .shell {
+        position: absolute;
+        z-index: 10;
+        top: 0.8rem;
+        left: 0.8rem;
+        right: 0.8rem;
+        max-width: 32rem;
+        background: color-mix(in srgb, var(--surface) 88%, transparent);
+        border: 1px solid #d8d3c4;
+        border-radius: 0.6rem;
+        padding: 0.6rem;
+        box-shadow: 0 8px 24px rgba(18, 31, 36, 0.12);
+        backdrop-filter: blur(6px);
+      }
+      .row {
+        display: flex;
+        gap: 0.4rem;
+      }
+      input {
+        flex: 1;
+        border: 1px solid #bfc5bb;
+        border-radius: 0.45rem;
+        padding: 0.45rem 0.6rem;
+      }
+      button {
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: white;
+        border-radius: 0.45rem;
+        padding: 0.45rem 0.8rem;
+        cursor: pointer;
+      }
+      #results {
+        list-style: none;
+        margin: 0.45rem 0 0 0;
+        padding: 0;
+        max-height: 12rem;
+        overflow: auto;
+      }
+      #results li {
+        border-top: 1px solid #e5decb;
+        padding: 0.35rem 0.1rem;
+        cursor: pointer;
+      }
+      #results small {
+        color: #55646a;
+      }
+      @media (max-width: 640px) {
+        .shell {
+          max-width: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div class="shell">
+      <div class="row">
+        <input id="query" placeholder="Search places, addresses, POIs" />
+        <button id="go">Find</button>
+      </div>
+      <ul id="results"></ul>
+    </div>
+
+    <script src="/assets/maplibre-gl.js"></script>
+    <script>
+      const map = new maplibregl.Map({
+        container: "map",
+        style: "/style.json",
+        center: [11.5, 48.1],
+        zoom: 5,
+        hash: true,
+      });
+      map.addControl(new maplibregl.NavigationControl(), "top-right");
+
+      const list = document.getElementById("results");
+      const input = document.getElementById("query");
+
+      async function runSearch() {
+        const q = input.value.trim();
+        if (q.length < 2) {
+          return;
+        }
+        const res = await fetch(`/search?q=${encodeURIComponent(q)}&limit=20`);
+        const data = await res.json();
+        list.innerHTML = "";
+        for (const item of data.results || []) {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${item.name}</strong><br><small>${item.kind}</small>`;
+          li.onclick = () => {
+            map.flyTo({ center: [item.lon, item.lat], zoom: 13 });
+          };
+          list.appendChild(li);
+        }
+      }
+
+      document.getElementById("go").onclick = runSearch;
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          runSearch();
+        }
+      });
+    </script>
+  </body>
+</html>
