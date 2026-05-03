@@ -52,6 +52,39 @@ def _path_aliases(value: str) -> set[str]:
     return {a.strip() for a in aliases if a.strip()}
 
 
+def _iso_value(entry: dict) -> str:
+    return entry["iso3166_2"] or entry["iso3166_1_alpha2"] or "-"
+
+
+def _build_tree(entries: list[dict]) -> dict:
+    root: dict = {"children": {}, "entries": []}
+    for entry in entries:
+        node = root
+        for part in entry.get("parents") or []:
+            children = node["children"]
+            if part not in children:
+                children[part] = {"children": {}, "entries": []}
+            node = children[part]
+        node["entries"].append(entry)
+    return root
+
+
+def _render_tree(node: dict, lines: list[str], depth: int = 0) -> None:
+    indent = "  " * depth
+    child_names = sorted(node["children"], key=lambda value: value.lower())
+    for child_name in child_names:
+        lines.append(f"{indent}- **`{child_name}/`**")
+        _render_tree(node["children"][child_name], lines, depth + 1)
+
+    node_entries = sorted(node["entries"], key=lambda entry: entry["name"].lower())
+    for entry in node_entries:
+        iso = _iso_value(entry)
+        if iso == "-":
+            lines.append(f"{indent}- {entry['name']} (`{entry['id']}`)")
+        else:
+            lines.append(f"{indent}- {entry['name']} (`{iso}`, `{entry['id']}`)")
+
+
 def main() -> None:
     repo_root = Path(__file__).resolve().parents[1]
     data_dir = repo_root / "offmap" / "data"
@@ -110,15 +143,16 @@ def main() -> None:
         "",
         "This list is auto-generated from Geofabrik's region index and is accepted by `HIGH_DETAIL_REGION`.",
         "",
+        "Accepted value forms: region name, region id/slug, and ISO code (when available).",
+        "",
         f"Total regions: **{len(out)}**",
         "",
-        "| Region | ISO | Parent Path |",
-        "|---|---|---|",
+        "## Region Tree",
+        "",
+        "Tree branches are parent paths from Geofabrik. Leaves are selectable regions.",
+        "",
     ]
-    for entry in out:
-        iso = entry["iso3166_2"] or entry["iso3166_1_alpha2"] or "-"
-        parent_path = " / ".join(entry["parents"]) if entry["parents"] else "-"
-        lines.append(f"| {entry['name']} | {iso} | {parent_path} |")
+    _render_tree(_build_tree(out), lines)
 
     regions_md.write_text("\n".join(lines) + "\n")
     print(f"Wrote {regions_json}")
