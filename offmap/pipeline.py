@@ -16,9 +16,41 @@ def _run(command: list[str]) -> None:
     subprocess.run(command, check=True)
 
 
+def _resolve_tilemaker_paths() -> tuple[str, str]:
+    config_candidates = [
+        SETTINGS.tilemaker_config_path,
+        "/usr/share/tilemaker/config-openmaptiles.json",
+        "/usr/share/tilemaker-openmaptiles/config-openmaptiles.json",
+        "/usr/share/tilemaker/config.json",
+    ]
+    process_candidates = [
+        SETTINGS.tilemaker_process_path,
+        "/usr/share/tilemaker/process-openmaptiles.lua",
+        "/usr/share/tilemaker-openmaptiles/process-openmaptiles.lua",
+        "/usr/share/tilemaker/process.lua",
+    ]
+
+    config_path = next((p for p in config_candidates if p and Path(p).exists()), None)
+    process_path = next((p for p in process_candidates if p and Path(p).exists()), None)
+
+    if not config_path:
+        raise FileNotFoundError(
+            f"tilemaker config not found; checked: {', '.join(p for p in config_candidates if p)}"
+        )
+    if not process_path:
+        raise FileNotFoundError(
+            f"tilemaker process file not found; checked: {', '.join(p for p in process_candidates if p)}"
+        )
+
+    return config_path, process_path
+
+
 def _download_planet() -> None:
     if SETTINGS.planet_path.exists():
-        return
+        updated_at = datetime.fromtimestamp(SETTINGS.planet_path.stat().st_mtime, tz=timezone.utc)
+        age = datetime.now(timezone.utc) - updated_at
+        if age < SETTINGS.planet_max_age:
+            return
     tmp = SETTINGS.planet_path.with_suffix(".tmp")
     _run(["curl", "-L", SETTINGS.planet_url, "-o", str(tmp)])
     tmp.replace(SETTINGS.planet_path)
@@ -36,6 +68,7 @@ def _trim_zoom(mbtiles_path: Path, max_zoom: int) -> None:
 
 
 def _build_low_tiles() -> None:
+    config_path, process_path = _resolve_tilemaker_paths()
     if SETTINGS.low_tiles_path.exists():
         SETTINGS.low_tiles_path.unlink()
     _run(
@@ -46,9 +79,9 @@ def _build_low_tiles() -> None:
             "--output",
             str(SETTINGS.low_tiles_path),
             "--config",
-            "/usr/share/tilemaker/config-openmaptiles.json",
+            config_path,
             "--process",
-            "/usr/share/tilemaker/process-openmaptiles.lua",
+            process_path,
             "--threads",
             str(SETTINGS.tile_threads),
         ]
@@ -77,6 +110,7 @@ def _build_high_extract() -> dict:
 
 
 def _build_high_tiles() -> None:
+    config_path, process_path = _resolve_tilemaker_paths()
     if SETTINGS.high_tiles_path.exists():
         SETTINGS.high_tiles_path.unlink()
     _run(
@@ -87,9 +121,9 @@ def _build_high_tiles() -> None:
             "--output",
             str(SETTINGS.high_tiles_path),
             "--config",
-            "/usr/share/tilemaker/config-openmaptiles.json",
+            config_path,
             "--process",
-            "/usr/share/tilemaker/process-openmaptiles.lua",
+            process_path,
             "--threads",
             str(SETTINGS.tile_threads),
         ]

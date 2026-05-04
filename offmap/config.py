@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from datetime import timedelta
 from pathlib import Path
 
 
@@ -23,8 +24,15 @@ class Settings:
     high_max_zoom: int = int(os.getenv("HIGH_MAX_ZOOM", "14"))
     tile_threads: int = int(os.getenv("TILE_THREADS", "1"))
     auto_update: bool = _env_bool("AUTO_UPDATE", True)
-    update_cron: str = os.getenv("UPDATE_CRON", "0 3 * * 0")
+    update_cron: str = os.getenv("UPDATE_CRON", "0 3 1 * *")
+    planet_max_age_days: int = int(os.getenv("PLANET_MAX_AGE_DAYS", "30"))
     startup_import: bool = _env_bool("STARTUP_IMPORT", True)
+    tilemaker_config_path: str = os.getenv(
+        "TILEMAKER_CONFIG_PATH", "/app/tilemaker/config-openmaptiles.json"
+    )
+    tilemaker_process_path: str = os.getenv(
+        "TILEMAKER_PROCESS_PATH", "/app/tilemaker/process-openmaptiles.lua"
+    )
 
     @property
     def planet_dir(self) -> Path:
@@ -69,6 +77,10 @@ class Settings:
     @property
     def status_path(self) -> Path:
         return self.state_dir / "status.json"
+
+    @property
+    def planet_max_age(self) -> timedelta:
+        return timedelta(days=max(self.planet_max_age_days, 0))
 
 
 SETTINGS = Settings()
