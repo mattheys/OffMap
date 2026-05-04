@@ -25,7 +25,8 @@ docker build -t offmap .
 docker run --rm -p 8080:8080 \
   -e HIGH_DETAIL_REGION="California" \
   -e AUTO_UPDATE=true \
-  -e UPDATE_CRON="0 3 * * 0" \
+  -e UPDATE_CRON="0 3 1 * *" \
+  -e PLANET_MAX_AGE_DAYS=30 \
   -v offmap-data:/data \
   offmap
 ```
@@ -78,7 +79,8 @@ curl "http://localhost:8080/regions?limit=50"
 - `TILE_THREADS` (default `1`; increase only if CPU/RAM allow)
 - `STARTUP_IMPORT` (default `true`; set `false` to skip build on app startup)
 - `AUTO_UPDATE` (default `true`)
-- `UPDATE_CRON` (default `0 3 * * 0`, weekly)
+- `UPDATE_CRON` (default `0 3 1 * *`, monthly at 03:00 on day 1)
+- `PLANET_MAX_AGE_DAYS` (default `30`; skip planet download when local file is newer)
 
 ## Data Layout
 

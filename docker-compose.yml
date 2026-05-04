@@ -13,7 +13,8 @@ services:
       TILE_THREADS: 1
       STARTUP_IMPORT: "true"
       AUTO_UPDATE: "true"
-      UPDATE_CRON: "0 3 * * 0"
+      UPDATE_CRON: "0 3 1 * *"
+      PLANET_MAX_AGE_DAYS: 30
     volumes:
       - offmap-data:/data
 

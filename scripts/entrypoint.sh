@@ -9,7 +9,7 @@ fi
 
 if [[ "${AUTO_UPDATE:-true}" == "true" ]]; then
   cat >/tmp/offmap.cron <<EOF
-${UPDATE_CRON:-0 3 * * 0} FORCE_PLANET_REFRESH=true python3 -m offmap.pipeline
+${UPDATE_CRON:-0 3 1 * *} python3 -m offmap.pipeline
 EOF
   supercronic /tmp/offmap.cron &
 fi

@@ -38,7 +38,8 @@ ENV HIGH_MAX_ZOOM=14
 ENV TILE_THREADS=1
 ENV STARTUP_IMPORT=true
 ENV AUTO_UPDATE=true
-ENV UPDATE_CRON="0 3 * * 0"
+ENV UPDATE_CRON="0 3 1 * *"
+ENV PLANET_MAX_AGE_DAYS=30
 ENV PLANET_URL=https://planet.openstreetmap.org/pbf/planet-latest.osm.pbf
 
 EXPOSE 8080
