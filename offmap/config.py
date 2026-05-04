@@ -27,8 +27,12 @@ class Settings:
     update_cron: str = os.getenv("UPDATE_CRON", "0 3 1 * *")
     planet_max_age_days: int = int(os.getenv("PLANET_MAX_AGE_DAYS", "30"))
     startup_import: bool = _env_bool("STARTUP_IMPORT", True)
-    tilemaker_config_path: str = os.getenv("TILEMAKER_CONFIG_PATH", "")
-    tilemaker_process_path: str = os.getenv("TILEMAKER_PROCESS_PATH", "")
+    tilemaker_config_path: str = os.getenv(
+        "TILEMAKER_CONFIG_PATH", "/app/tilemaker/config-openmaptiles.json"
+    )
+    tilemaker_process_path: str = os.getenv(
+        "TILEMAKER_PROCESS_PATH", "/app/tilemaker/process-openmaptiles.lua"
+    )
 
     @property
     def planet_dir(self) -> Path:

@@ -81,6 +81,8 @@ curl "http://localhost:8080/regions?limit=50"
 - `AUTO_UPDATE` (default `true`)
 - `UPDATE_CRON` (default `0 3 1 * *`, monthly at 03:00 on day 1)
 - `PLANET_MAX_AGE_DAYS` (default `30`; skip planet download when local file is newer)
+- `TILEMAKER_CONFIG_PATH` (default `/app/tilemaker/config-openmaptiles.json`)
+- `TILEMAKER_PROCESS_PATH` (default `/app/tilemaker/process-openmaptiles.lua`)
 
 ## Data Layout
 
